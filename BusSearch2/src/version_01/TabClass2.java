@@ -3,6 +3,7 @@ package version_01;
 import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -19,8 +20,8 @@ public class TabClass2 extends JFrame {
 	JTable table1, table2;
 	JScrollPane scroll1, scroll2;
 	JTextField tf_sr;
-	JLabel jl1;
-	JButton bt_ok, bt_fa, bt_del, bt_go, bt_fa2, bt_go2,bt_re;
+	JLabel jl1,la1,la2;
+	JButton bt_ok, bt_fa, bt_del, bt_go, bt_fa2, bt_go2,bt_re,bt_all, bt_all2;
 	JPanel p_main, p1, p2, p3, p4, cardp, cardp2;
 	Font f1;
 	CardLayout card;
@@ -40,6 +41,8 @@ public class TabClass2 extends JFrame {
 		bt_go = new JButton("찾 기");
 		bt_go2 = new JButton("찾 기");
 		bt_re = new JButton();
+		bt_all = new JButton("초 기 화");
+		bt_all2 = new JButton("초 기 화");
 		p_main = new JPanel();
 		p1 = new JPanel();
 		p2 = new JPanel();
@@ -64,13 +67,35 @@ public class TabClass2 extends JFrame {
 
 		this.Pmain();
 	}
+	
+	void Print() {
+		try {
+		ImageIcon icon = new ImageIcon(Main.class.getResource("../Image/green.png"));
+		Image img = icon.getImage();
+		Image changeImg = img.getScaledInstance(1500, 180, Image.SCALE_SMOOTH);
+		ImageIcon changIcon = new ImageIcon(changeImg);
+		la1 = new JLabel(changIcon);
+		la1.setBounds(0, 720, 1500, 200);
+		p_main.add(la1);
+		icon = new ImageIcon(Main.class.getResource("../Image/LOGO.png"));
+		img = icon.getImage();
+		changeImg = img.getScaledInstance(1500, 200, Image.SCALE_SMOOTH);
+		changIcon = new ImageIcon(changeImg);
+		la2 = new JLabel(changIcon);
+		la2.setBounds(0, 10, 1500, 180);
+		p_main.add(la2);
+		
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	void Panel1() {
 		if (table != true)
 			table = !table;
 		table1 = new JTable(model1);
 		scroll1 = new JScrollPane(table1);
-		scroll1.setPreferredSize(new Dimension(800, 550));
+		scroll1.setPreferredSize(new Dimension(800, 500));
 
 		table1.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table1.getColumn("번 호").setPreferredWidth(90);
@@ -114,7 +139,7 @@ public class TabClass2 extends JFrame {
 
 		table2 = new JTable(model2);
 		scroll2 = new JScrollPane(table2);
-		scroll2.setPreferredSize(new Dimension(802, 550));
+		scroll2.setPreferredSize(new Dimension(802, 500));
 
 		table2.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table2.getColumn("번 호").setPreferredWidth(90);
@@ -147,26 +172,30 @@ public class TabClass2 extends JFrame {
 		if (panel != true)
 			panel = !panel;
 		p3.setLayout(null);
-		bt_ok.setBounds(200, 50, 200, 100);
-		bt_fa.setBounds(200, 250, 200, 100);
-		bt_go.setBounds(200, 450, 200, 100);
+		bt_ok.setBounds(200, 0, 200, 70);
+		bt_fa.setBounds(200, 135, 200, 70);
+		bt_go.setBounds(200, 285, 200, 70);
+		bt_all.setBounds(200, 435, 200, 70);
 
 		p3.add(bt_ok);
 		p3.add(bt_fa);
 		p3.add(bt_go);
+		p3.add(bt_all);
 	}
 
 	void Panel4() {
 		if (panel != false)
 			panel = !panel;
 		p4.setLayout(null);
-		bt_del.setBounds(200, 50, 200, 100);
-		bt_fa2.setBounds(200, 250, 200, 100);
-		bt_go2.setBounds(200, 450, 200, 100);
+		bt_del.setBounds(200, 0, 200, 70);
+		bt_fa2.setBounds(200, 135, 200, 70);
+		bt_go2.setBounds(200, 285, 200, 70);
+		bt_all2.setBounds(200, 435, 200, 70);
 
 		p4.add(bt_del);
 		p4.add(bt_fa2);
 		p4.add(bt_go2);
+		p4.add(bt_all2);
 	}
 
 	void Panelcard() {
@@ -190,6 +219,7 @@ public class TabClass2 extends JFrame {
 		bt_re.setVisible(false);
 		p_main.add(bt_re);
 		
+		this.Print();
 		this.EventUp();
 		bt_re.doClick();
 		this.Panel1();
@@ -276,7 +306,7 @@ public class TabClass2 extends JFrame {
 					}
 				} catch (Exception e2) {
 					e2.printStackTrace();
-					JOptionPane.showMessageDialog(null, "시스템 오류, 기록 불러오기 실패", "불러오기 실패", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(null, "기록이 없거나, 오류입니다.", "검색 기록 없음", JOptionPane.YES_OPTION);
 				}
 			}
 		});
@@ -298,6 +328,35 @@ public class TabClass2 extends JFrame {
 				SearchFrame sf = new SearchFrame(ID);
 				sf.tab.getSelectedIndex();
 				
+			}
+		});
+		
+		bt_del.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				String start = (String) table2.getValueAt(table2.getSelectedRow(), 1);
+				String goal = (String) table2.getValueAt(table2.getSelectedRow(), 2);
+				String time = (String) table2.getValueAt(table2.getSelectedRow(), 3);
+				String id = ID;
+				RecodDAO dao = new RecodDAO();
+				dao.Delite(start, goal, id, time);
+			}
+		});
+		
+		bt_all.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				RecodDAO dao = new RecodDAO();
+				dao.Delall();
+				bt_re.doClick();
+			}
+		});
+		bt_all2.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+				RecodDAO dao = new RecodDAO();
+				dao.Delall2();
+				bt_re.doClick();
 			}
 		});
 	}

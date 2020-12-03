@@ -17,7 +17,7 @@ public class BusDAO {
 	private Connection con;
 	private Statement stmt;
 	private ResultSet rs;
-	
+
 	public ArrayList<BusVo> stationAll(String Station) { // 로그인을 위한 데이터 베이스 연동부
 		ArrayList<BusVo> stationAll = new ArrayList<BusVo>();
 		if (Station.equals("")) {
@@ -26,7 +26,7 @@ public class BusDAO {
 			try {
 				connDB();
 				// 직접경로를 확인하는 쿼리.
-				String query = "select STATION from bus_line where bus_number = '"+Station+"'";
+				String query = "select STATION from bus_line where bus_number = '" + Station + "'";
 				rs = stmt.executeQuery(query);
 				rs.last();
 				int N = rs.getRow();
@@ -50,7 +50,7 @@ public class BusDAO {
 		}
 		return stationAll;
 	}
-	
+
 	public ArrayList<BusVo> find(String start, String goal) { // 로그인을 위한 데이터 베이스 연동부
 		ArrayList<BusVo> find = new ArrayList<BusVo>();
 		if (start.equals("") || goal.equals("")) {
@@ -149,10 +149,8 @@ public class BusDAO {
 		}
 		return list;
 	}
-	//transinfo
-	
-	
-	
+	// transinfo
+
 	public ArrayList<BusVo> information(String info, String start, String goal) { // 로그인을 위한 데이터 베이스 연동부
 		ArrayList<BusVo> information = new ArrayList<BusVo>();
 		if (info.equals("")) {
@@ -179,14 +177,14 @@ public class BusDAO {
 					String BusN = rs.getString("STATION_NUMBER");
 					Result[cnt++] = BusN;
 				}
-				if (Integer.parseInt(Result[0]) < Integer.parseInt(Result[cnt-1])) {
+				if (Integer.parseInt(Result[0]) < Integer.parseInt(Result[cnt - 1])) {
 					String temp = Result[0];
 					Result[0] = Result[1];
 					Result[1] = temp;
 				}
 
 				query = "select station from bus_line where bus_number = '" + info + "' and station_number >= "
-						+ Result[cnt-1] + " and station_number <= " + Result[0];
+						+ Result[cnt - 1] + " and station_number <= " + Result[0];
 
 				rs = stmt.executeQuery(query);
 				rs.last();
@@ -213,7 +211,7 @@ public class BusDAO {
 		}
 		return information;
 	}
-	
+
 	void Recoding(String ID, String start, String goal) {
 		try {
 			connDB();
@@ -222,20 +220,21 @@ public class BusDAO {
 			rs = stmt.executeQuery(query);
 			rs.next();
 			int n = 0;
-			if (rs.getRow() == 0) { //검색결과가 없으면 기록되지 않은 것.
+			if (rs.getRow() == 0) { // 검색결과가 없으면 기록되지 않은 것.
 				n = 1;
+			} else {
+				n = Integer.parseInt(rs.getString("NO")) + 1;
 			}
-			n = Integer.parseInt(rs.getString("NO"))+1;
 			String NO = String.valueOf(n);
-			
+
 			query = "insert into recod(NO, start_S, GOAL_S,ID) values(";
-			query += "'"+NO+"','"+start+"','"+goal+"','"+ID+"')";
+			query += "'" + NO + "','" + start + "','" + goal + "','" + ID + "')";
 			boolean b = stmt.execute(query);
 			if (!b) {
 				System.out.println("Insert success.\n");
 			} else
 				System.out.println("Insert fail.\n");
-			
+
 			String sql = "SELECT NO, START_S, GOAL_S, ID FROM RECOD";
 			rs = stmt.executeQuery(sql);
 			while (rs.next()) {

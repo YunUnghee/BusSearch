@@ -1,25 +1,47 @@
 package version_01;
 
-import java.awt.*;
-
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
-import javax.swing.table.*;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumnModel;
 
 @SuppressWarnings("serial")
 public class TabClass extends JFrame { // 버스찾기 기능을 구현한 탭 클레스.
-	
+
 	Image dimg;
 	BufferedImage ii;
-	JTable table;
+	JTable table, table2;
 	JScrollPane scroll1, scroll2;
 	JTextArea ta1;
 	JTextField tf_st, tf_go, tf_sn;
-	JLabel jl1, jl2, jl3, il1, il2, il3;
+	JLabel jl1, jl2, jl3, il1, il2, il3, la1, la2;
 	JButton bt_ex, bt_sc, bt_ch, bt_reco, bt_ok, bt_sc2;
 	JButton bt_ch2, bt_reco2;
 	JPanel p_main, p1, p2, p3, p4, cardp;
@@ -28,7 +50,8 @@ public class TabClass extends JFrame { // 버스찾기 기능을 구현한 탭 클레스.
 	JLabel l_title;
 	CardLayout card;
 	String[] bus_info = { "번 호", "버 스 번 호" };
-	DefaultTableModel model;
+	String[] station = { "번 호", "정 류 소", "승 차 / 하 차" };
+	DefaultTableModel model, model2;
 	JComboBox<String> jcb1, jcb2, jcb3;
 	recod info = new recod();
 	String ID;
@@ -60,9 +83,13 @@ public class TabClass extends JFrame { // 버스찾기 기능을 구현한 탭 클레스.
 		cardp = new JPanel();
 		f1 = new Font("돋음", Font.PLAIN, 20);
 		cb = new JCheckBox();
-		l_title = new JLabel("Bus Search");
 		card = new CardLayout();
 		model = new DefaultTableModel(bus_info, 0) {
+			public boolean isCellEditable(int i, int c) {
+				return false;
+			}
+		};
+		model2 = new DefaultTableModel(station, 0) {
 			public boolean isCellEditable(int i, int c) {
 				return false;
 			}
@@ -72,21 +99,42 @@ public class TabClass extends JFrame { // 버스찾기 기능을 구현한 탭 클레스.
 		this.ID = ID;
 	}
 
-	void Default_Image(String str) { // 카드레이아웃으로 미리 만들어놓고, 필요한 부분을 나중에 불러오는 식으로 구현을 생각해보자.
+	void Print() {
 		try {
-		Imageclass ic = new Imageclass(str);
-		ii = ImageIO.read(ic.getImage());
-
-		dimg = ii.getScaledInstance(il1.getWidth(), il1.getHeight(), Image.SCALE_SMOOTH);
-		ImageIcon Ii = new ImageIcon(dimg);
-		il2 = new JLabel(Ii);
-		il2.setBounds(600, 150, 500, 200);
-		p_main.add(il2);
-		}catch(Exception e) {
+			ImageIcon icon = new ImageIcon(Main.class.getResource("../Image/green.png"));
+			Image img = icon.getImage();
+			Image changeImg = img.getScaledInstance(1400, 200, Image.SCALE_SMOOTH);
+			ImageIcon changIcon = new ImageIcon(changeImg);
+			la1 = new JLabel(changIcon);
+			la1.setBounds(50, 720, 1400, 200);
+			p_main.add(la1);
+			icon = new ImageIcon(Main.class.getResource("../Image/LOGO.png"));
+			img = icon.getImage();
+			changeImg = img.getScaledInstance(1400, 180, Image.SCALE_SMOOTH);
+			changIcon = new ImageIcon(changeImg);
+			la2 = new JLabel(changIcon);
+			la2.setBounds(50, 10, 1400, 180);
+			p_main.add(la2);
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
+
+	void Default_Image(String str) { // 카드레이아웃으로 미리 만들어놓고, 필요한 부분을 나중에 불러오는 식으로 구현을 생각해보자.
+		try {
+			Imageclass ic = new Imageclass(str);
+			ii = ImageIO.read(ic.getImage());
+
+			dimg = ii.getScaledInstance(il1.getWidth(), il1.getHeight(), Image.SCALE_SMOOTH);
+			ImageIcon Ii = new ImageIcon(dimg);
+			il1 = new JLabel(Ii);
+			il1.setBounds(600, 150, 500, 200);
+			p_main.add(il1);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	void Panel1() {
 		jl1.setFont(f1);
 		jl2.setFont(f1);
@@ -111,20 +159,18 @@ public class TabClass extends JFrame { // 버스찾기 기능을 구현한 탭 클레스.
 		p1.setLocation(0, 200);
 
 		table.addMouseListener(new MouseAdapter() {
-			
 
 			public void mouseClicked(MouseEvent e) {
 				if (ch == true) {
 					String str = (String) table.getValueAt(table.getSelectedRow(), 1);
 					Default_Image(str);
-					
-					
+
 					try {
 						String info = str;
 						String start = jcb1.getSelectedItem().toString();
 						String goal = jcb2.getSelectedItem().toString();
 						BusDAO dao = new BusDAO();
-						
+
 						ArrayList<BusVo> information = dao.information(info, start, goal);
 						for (int i = 0; i < information.size(); i++) {
 							BusVo data = (BusVo) information.get(i);
@@ -135,17 +181,29 @@ public class TabClass extends JFrame { // 버스찾기 기능을 구현한 탭 클레스.
 //					ArrayList<BusVo> transinfo = dao.transinfo(info, start, goal);
 
 						} else {
-							String print = "";
-							ta1.setText(print);
+							model2.setNumRows(0);
+							String ride = "";
+							
 							for (int i = 0; i < bus_info.length; i++) {
-								ta1.append(bus_info[i] + "\n");
-								System.out.println(bus_info[i]);
+								Object[] oba = new Object[3];
+								if (i == 0) {
+									ride = "승 차";
+								} else if (i == bus_info.length - 1) {
+									ride = "하 차";
+								}
+								
+								oba[0] = String.valueOf(i+1);
+								oba[1] = bus_info[i];
+								oba[2] = ride;
+								ride = "";
+								model2.addRow(oba);
 							}
 						}
+
 					} catch (Exception e2) {
 						JOptionPane.showMessageDialog(null, "검색결과가 없습니다.", "검색결과", JOptionPane.ERROR_MESSAGE);
 					}
-					
+
 				} else {
 					String str = (String) table.getValueAt(table.getSelectedRow(), 1);
 					Default_Image(str);
@@ -157,11 +215,15 @@ public class TabClass extends JFrame { // 버스찾기 기능을 구현한 탭 클레스.
 							BusVo data = (BusVo) stationAll.get(i);
 							bus_info = data.getResult();
 						}
-						String print = "";
-						ta1.setText(print);
+						model2.setNumRows(0);
 						for (int i = 0; i < bus_info.length; i++) {
-							ta1.append(bus_info[i] + "\n");
-							System.out.println(bus_info[i]);
+							Object[] obj = new Object[3];
+							
+							obj[0] = String.valueOf(i+1);
+							obj[1] = bus_info[i];
+							obj[2] = "";
+							
+							model2.addRow(obj);
 						}
 					} catch (Exception e3) {
 						JOptionPane.showMessageDialog(null, "검색결과가 없습니다.", "검색결과", JOptionPane.ERROR_MESSAGE);
@@ -170,22 +232,45 @@ public class TabClass extends JFrame { // 버스찾기 기능을 구현한 탭 클레스.
 			}
 		});
 
+		TableSET(table);
+	}
+
+	void Panel2() {
+		table2 = new JTable(model2);
+		scroll1 = new JScrollPane(table2);
+		scroll1.setPreferredSize(new Dimension(500, 300));
+
+		table2.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+
+		
+		table2.getColumn("번 호").setPreferredWidth(50);
+		table2.getColumn("정 류 소").setPreferredWidth(350);
+		table2.getColumn("승 차 / 하 차").setPreferredWidth(97);
+
+		table2.setRowHeight(40);
+		table2.setFont(f1);
+
+		table2.getTableHeader().setReorderingAllowed(false);
+		table2.getTableHeader().setResizingAllowed(false);
+
+//		ta1.setFont(f1);
+		p2.setLayout(null);
+		scroll2 = new JScrollPane(table2);
+		scroll2.setLocation(0, 0);
+		scroll2.setSize(500, 300);
+		p2.add(scroll2);
+		p2.setBounds(600, 400, 500, 500);
+		TableSET(table2);
+		
+	}
+	
+	void TableSET(JTable table) {
 		DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();
 		dtcr.setHorizontalAlignment(SwingConstants.CENTER);
 		TableColumnModel tcm = table.getColumnModel();
 		for (int i = 0; i < tcm.getColumnCount(); i++) {
 			tcm.getColumn(i).setCellRenderer(dtcr);
 		}
-	}
-
-	void Panel2() {
-		ta1.setFont(f1);
-		p2.setLayout(null);
-		scroll2 = new JScrollPane(ta1);
-		scroll2.setLocation(0, 0);
-		scroll2.setSize(500, 300);
-		p2.add(scroll2);
-		p2.setBounds(600, 400, 500, 500);
 	}
 
 	void Panel3() {
@@ -269,15 +354,16 @@ public class TabClass extends JFrame { // 버스찾기 기능을 구현한 탭 클레스.
 		p_main.setLayout(null);
 		il1.setBounds(600, 150, 500, 250);
 		bt_ok.setBounds(400, 150, 100, 50);
-		l_title.setBounds(0, 0, 1500, 120);
-		p_main.add(l_title);
+
 		ComboAgent agent1 = new ComboAgent(jcb1);
 		ComboAgent agent2 = new ComboAgent(jcb2);
 		ComboAgent agent3 = new ComboAgent(jcb3);
-		
+
 		String str = "9999";
 		this.Default_Image(str);
-		
+
+		this.Print();
+
 		agent1.toString();
 		agent2.toString();
 		agent3.toString();
@@ -311,6 +397,7 @@ public class TabClass extends JFrame { // 버스찾기 기능을 구현한 탭 클레스.
 		bt_ch.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				model.setNumRows(0);
+				model2.setNumRows(0);
 
 				if (ch = false) {
 					card.previous(cardp);
@@ -333,9 +420,7 @@ public class TabClass extends JFrame { // 버스찾기 기능을 구현한 탭 클레스.
 
 		bt_sc.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
-				String str = "9999";
-				Default_Image(str);
+
 				ta1.setText("");
 				model.setNumRows(0);
 				il1.setBounds(600, 150, 500, 200);
@@ -363,7 +448,7 @@ public class TabClass extends JFrame { // 버스찾기 기능을 구현한 탭 클레스.
 							model.addRow(obj);
 						}
 					}
-					
+
 				} catch (Exception e2) {
 					JOptionPane.showMessageDialog(null, "검색결과가 없습니다.", "검색결과", JOptionPane.ERROR_MESSAGE);
 				}
@@ -373,8 +458,7 @@ public class TabClass extends JFrame { // 버스찾기 기능을 구현한 탭 클레스.
 
 		bt_sc2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				String str = "9999";
-				Default_Image(str);
+
 				ta1.setText("");
 				model.setNumRows(0);
 				try {

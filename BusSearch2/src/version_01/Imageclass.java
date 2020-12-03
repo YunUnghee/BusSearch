@@ -35,6 +35,8 @@ public class Imageclass {
 				break;
 			case 9999:
 				src = new File(Main.class.getResource("../Image/default.png").toURI());
+				break;
+
 			}
 		} catch (Exception e) {
 		}
